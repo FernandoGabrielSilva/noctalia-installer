@@ -2,35 +2,22 @@
 
 set -e
 
-REPO="FernandoGabrielSilva/noctalia-installer"
-TMP_DIR="/tmp/noctalia-installer"
-
 echo "=============================="
-echo " Noctalia Installer"
+echo " Noctalia Installer Loader"
 echo "=============================="
 echo ""
 
-read -p "Deseja continuar? (y/n): " confirm
+read -p "Deseja instalar o Noctalia? (y/n): " confirm
 [ "$confirm" != "y" ] && exit 0
 
-echo "Baixando projeto completo..."
+TMP_SCRIPT="/tmp/noctalia-god.sh"
 
-rm -rf $TMP_DIR
+echo "Baixando instalador completo..."
 
-# Baixa o repo inteiro
-if command -v git &>/dev/null; then
-    git clone https://github.com/$REPO.git $TMP_DIR
-else
-    echo "Git não encontrado, usando fallback..."
-    curl -L https://github.com/$REPO/archive/refs/heads/main.tar.gz \
-    | tar -xz -C /tmp
-    mv /tmp/noctalia-installer-main $TMP_DIR
-fi
+curl -fsSL https://raw.githubusercontent.com/FernandoGabrielSilva/noctalia-installer/main/noctalia-god.sh -o $TMP_SCRIPT
 
-cd $TMP_DIR
-
-chmod +x noctalia-god.sh
+chmod +x $TMP_SCRIPT
 
 echo "Iniciando instalação..."
 
-bash noctalia-god.sh
+bash $TMP_SCRIPT
