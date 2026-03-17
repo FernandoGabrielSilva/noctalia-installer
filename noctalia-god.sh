@@ -15,7 +15,7 @@ echo "██║╚██╗██║██║   ██║██║        ██
 echo "██║ ╚████║╚██████╔╝╚██████╗    ██║   ██║  ██║███████╗██║██║  ██║"
 echo "╚═╝ ╚═══╝ ╚═════╝ ╚═════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝╚═╝  ╚═╝"
 echo -e "${N}"
-echo -e "${G}Noctalia Installer GOD FINAL${N}"
+echo -e "${G}Noctalia Installer GOD ULTRA${N}"
 echo ""
 
 # ===== FUNÇÕES =====
@@ -110,7 +110,7 @@ if ask "Instalar dependências completas?"; then
     ok "Deps OK"
 fi
 
-# ===== QUICKSHELL (FIX CONFLITO) =====
+# ===== QUICKSHELL =====
 if command -v qs &>/dev/null; then
     echo -e "${Y}Quickshell já está instalado!${N}"
 
@@ -126,12 +126,12 @@ if command -v qs &>/dev/null; then
         case $qopt in
         1)
             sudo pacman -Rns quickshell-git --noconfirm 2>/dev/null || true
-            read -p "AUR helper (yay/paru): " helper < /dev/tty
+            read -p "AUR helper: " helper < /dev/tty
             $helper -S quickshell || fail "Erro quickshell"
             ;;
         2)
             sudo pacman -Rns quickshell --noconfirm 2>/dev/null || true
-            read -p "AUR helper (yay/paru): " helper < /dev/tty
+            read -p "AUR helper: " helper < /dev/tty
             $helper -S quickshell-git || fail "Erro quickshell-git"
             ;;
         *)
@@ -140,18 +140,6 @@ if command -v qs &>/dev/null; then
         esac
     else
         ok "Mantendo Quickshell atual"
-    fi
-
-else
-    if ask "Instalar Quickshell?"; then
-        read -p "Versão (1=stable / 2=git): " qopt < /dev/tty
-        read -p "AUR helper (yay/paru): " helper < /dev/tty
-
-        case $qopt in
-        1) $helper -S quickshell || fail "Erro quickshell" ;;
-        2) $helper -S quickshell-git || fail "Erro quickshell-git" ;;
-        *) fail "Inválido" ;;
-        esac
     fi
 fi
 
@@ -166,6 +154,41 @@ curl -L https://github.com/noctalia-dev/noctalia-shell/releases/latest/download/
 | tar -xz --strip-components=1 -C ~/.config/quickshell/noctalia-shell
 
 ok "Instalado"
+
+# ===== ULTRA DETECTOR =====
+step "Detectando outras shells..."
+
+declare -A DETECTED
+KEYWORDS=("dank" "waybar" "eww" "ags" "yambar" "polybar" "ironbar")
+
+for file in ~/.config/hypr/hyprland.conf ~/.config/sway/config ~/.config/niri/config.kdl; do
+    [ -f "$file" ] || continue
+    for key in "${KEYWORDS[@]}"; do
+        grep -qi "$key" "$file" && DETECTED["$key"]=1
+    done
+done
+
+if [ ${#DETECTED[@]} -gt 0 ]; then
+    echo -e "${Y}Detectado:${N}"
+    for i in "${!DETECTED[@]}"; do echo " - $i"; done
+
+    echo "1) Remover tudo"
+    echo "2) Desativar tudo (recomendado)"
+    echo "3) Ignorar"
+    read -p "Opção: " act < /dev/tty
+
+    for i in "${!DETECTED[@]}"; do
+        case $act in
+        1)
+            rm -rf ~/.config/$i* 2>/dev/null
+            sed -i "/$i/d" ~/.config/hypr/hyprland.conf 2>/dev/null
+            ;;
+        2)
+            sed -i "s/^.*$i.*$/# desativado: &/g" ~/.config/hypr/hyprland.conf 2>/dev/null
+            ;;
+        esac
+    done
+fi
 
 # ===== CONFIG =====
 mkdir -p ~/.config/noctalia
@@ -190,50 +213,27 @@ cat > ~/.config/noctalia/config.json <<EOF
 {
  "theme": "$theme",
  "blur": $blur,
- "animations": $anim,
- "bar": true,
- "launcher": true
+ "animations": $anim
 }
 EOF
 
 ok "Config OK"
 
-# ===== AUTOSTART =====
-if ask "Autostart?"; then
-    case $COMP in
-    hyprland)
-        mkdir -p ~/.config/hypr
-        grep -q "noctalia" ~/.config/hypr/hyprland.conf 2>/dev/null || \
-        echo "exec-once = qs -c noctalia-shell --no-duplicate" >> ~/.config/hypr/hyprland.conf
-        ;;
-    sway)
-        mkdir -p ~/.config/sway
-        grep -q "noctalia" ~/.config/sway/config 2>/dev/null || \
-        echo "exec qs -c noctalia-shell" >> ~/.config/sway/config
-        ;;
-    niri)
-        mkdir -p ~/.config/niri
-        grep -q "noctalia" ~/.config/niri/config.kdl 2>/dev/null || \
-        echo 'spawn-at-startup "qs" "-c" "noctalia-shell"' >> ~/.config/niri/config.kdl
-        ;;
-    esac
-    ok "Autostart OK"
+# ===== AUTOSTART LIMPO =====
+if ask "Ativar Noctalia no autostart?"; then
+    sed -i '/noctalia-shell/d' ~/.config/hypr/hyprland.conf 2>/dev/null
+    echo "exec-once = qs -c noctalia-shell --no-duplicate" >> ~/.config/hypr/hyprland.conf
+    ok "Noctalia padrão definido"
 fi
 
-# ===== DEBUG (FIX) =====
+# ===== DEBUG =====
 if ask "Rodar debug?"; then
-    read -p "Porta debug (1024-65535, default 1337): " port < /dev/tty
+    read -p "Porta (default 1337): " port < /dev/tty
     port=${port:-1337}
-
-    if ! [[ "$port" =~ ^[0-9]+$ ]] || [ "$port" -lt 1024 ] || [ "$port" -gt 65535 ]; then
-        fail "Porta inválida"
-    fi
-
     qs -c noctalia-shell --debug $port:$port
 fi
 
 # ===== FINAL =====
 echo ""
 echo -e "${G}✔ Instalação concluída${N}"
-echo "Log: $LOG"
-echo "Reinicie a sessão $COMP"
+echo "Reinicie sua sessão"
