@@ -1,12 +1,17 @@
 #!/bin/bash
 
-cd "$(dirname "$0")"
-#!/bin/bash
+set -e
 
 LOG="$HOME/noctalia-god.log"
 exec > >(tee -a "$LOG") 2>&1
 
 R="\e[31m"; G="\e[32m"; Y="\e[33m"; C="\e[36m"; N="\e[0m"
+
+# ===== PROTEÇÃO ROOT =====
+if [ "$EUID" -eq 0 ]; then
+  echo -e "${R}Não rode como root!${N}"
+  exit 1
+fi
 
 # ===== UI =====
 clear
@@ -16,18 +21,19 @@ echo "████╗  ██║██╔═══██╗██╔════
 echo "██╔██╗ ██║██║   ██║██║        ██║   ███████║██║     ██║███████║"
 echo "██║╚██╗██║██║   ██║██║        ██║   ██╔══██║██║     ██║██╔══██║"
 echo "██║ ╚████║╚██████╔╝╚██████╗    ██║   ██║  ██║███████╗██║██║  ██║"
-echo "╚═╝ ╚═══╝ ╚═════╝ ╚═════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝╚═ ╚═╝"
+echo "╚═╝  ╚═══╝ ╚═════╝  ╚═════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝╚═╝  ╚═╝"
 echo -e "${N}"
 echo -e "${G}Noctalia Installer GOD${N}"
 echo ""
 
+# ===== FUNÇÕES =====
 ask() {
 while true; do
-read -p "$1 (y/n): " yn
+read -p "$1 (y/n): " yn < /dev/tty
 case $yn in
 [Yy]*) return 0 ;;
 [Nn]*) return 1 ;;
-*) echo "y/n" ;;
+*) echo "Digite y ou n." ;;
 esac
 done
 }
@@ -44,7 +50,8 @@ echo -e "${Y}Noctalia já está instalado!${N}"
 echo "1) Continuar (reinstalar por cima)"
 echo "2) Remover e instalar do zero"
 echo "3) Cancelar instalação"
-read -p "Escolha: " opt
+
+read -p "Escolha: " opt < /dev/tty
 
 case $opt in
 1) ok "Continuando..." ;;
@@ -78,7 +85,18 @@ pgrep -x niri &>/dev/null && COMP="niri"
 
 if [ -z "$COMP" ]; then
 echo "Escolha compositor:"
-select c in hyprland sway niri; do COMP=$c; break; done
+echo "1) hyprland"
+echo "2) sway"
+echo "3) niri"
+
+read -p "Opção: " compopt < /dev/tty
+
+case $compopt in
+1) COMP="hyprland" ;;
+2) COMP="sway" ;;
+3) COMP="niri" ;;
+*) fail "Inválido" ;;
+esac
 fi
 
 ok "Compositor: $COMP"
@@ -86,8 +104,8 @@ ok "Compositor: $COMP"
 # ===== BACKUP =====
 if ask "Backup configs?"; then
 mkdir -p ~/.backup-noctalia
-cp -r ~/.config/noctalia ~/.backup-noctalia 2>/dev/null
-cp -r ~/.config/quickshell ~/.backup-noctalia 2>/dev/null
+cp -r ~/.config/noctalia ~/.backup-noctalia 2>/dev/null || true
+cp -r ~/.config/quickshell ~/.backup-noctalia 2>/dev/null || true
 ok "Backup feito"
 fi
 
@@ -117,7 +135,7 @@ fi
 # ===== QUICKSHELL =====
 if ask "Instalar Quickshell?"; then
 if [ "$PKG" = "pacman" ]; then
-read -p "AUR helper: " helper
+read -p "AUR helper (yay/paru): " helper < /dev/tty
 $helper -S quickshell || fail "Erro quickshell"
 else
 fail "Instale manualmente"
@@ -136,12 +154,23 @@ curl -L https://github.com/noctalia-dev/noctalia-shell/releases/latest/download/
 
 ok "Instalado"
 
-# ===== CONFIG MENU =====
+# ===== CONFIG =====
 mkdir -p ~/.config/noctalia
 
 echo ""
 echo "Configuração:"
-select theme in dark neon minimal; do break; done
+echo "1) dark"
+echo "2) neon"
+echo "3) minimal"
+
+read -p "Tema: " opt < /dev/tty
+
+case $opt in
+1) theme="dark" ;;
+2) theme="neon" ;;
+3) theme="minimal" ;;
+*) theme="dark" ;;
+esac
 
 ask "Ativar blur?" && blur=true || blur=false
 ask "Ativar animações?" && anim=true || anim=false
@@ -162,15 +191,15 @@ ok "Config OK"
 if ask "Autostart?"; then
 case $COMP in
 hyprland)
-grep -q "noctalia" ~/.config/hypr/hyprland.conf 2>/dev/null || \
+grep -q "qs -c noctalia-shell" ~/.config/hypr/hyprland.conf 2>/dev/null || \
 echo "exec-once = qs -c noctalia-shell --no-duplicate" >> ~/.config/hypr/hyprland.conf
 ;;
 sway)
-grep -q "noctalia" ~/.config/sway/config 2>/dev/null || \
+grep -q "qs -c noctalia-shell" ~/.config/sway/config 2>/dev/null || \
 echo "exec qs -c noctalia-shell" >> ~/.config/sway/config
 ;;
 niri)
-grep -q "noctalia" ~/.config/niri/config.kdl 2>/dev/null || \
+grep -q "qs -c noctalia-shell" ~/.config/niri/config.kdl 2>/dev/null || \
 echo 'spawn-at-startup "qs" "-c" "noctalia-shell"' >> ~/.config/niri/config.kdl
 ;;
 esac
@@ -187,18 +216,3 @@ echo ""
 echo -e "${G}✔ Instalação concluída${N}"
 echo "Log: $LOG"
 echo "Reinicie a sessão $COMP"
-source ./lib/ui.sh
-source ./lib/detect.sh
-source ./lib/install.sh
-source ./lib/config.sh
-
-logo
-
-PKG=$(detect_pkg)
-COMP=$(detect_compositor)
-
-echo "PKG: $PKG"
-echo "Compositor: $COMP"
-
-ask "Instalar dependências?" && install_deps $PKG
-ask "Configurar?" && setup_config
