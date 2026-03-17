@@ -133,13 +133,48 @@ ok "Deps OK"
 fi
 
 # ===== QUICKSHELL =====
-if ask "Instalar Quickshell?"; then
-if [ "$PKG" = "pacman" ]; then
-read -p "AUR helper (yay/paru): " helper < /dev/tty
-$helper -S quickshell || fail "Erro quickshell"
+if command -v qs &>/dev/null; then
+    echo -e "${Y}Quickshell já está instalado!${N}"
+
+    if pacman -Q quickshell-git &>/dev/null; then
+        echo "Versão detectada: quickshell-git"
+    elif pacman -Q quickshell &>/dev/null; then
+        echo "Versão detectada: quickshell"
+    fi
+
+    if ask "Deseja reinstalar Quickshell?"; then
+        read -p "Escolha versão (1=stable / 2=git): " qopt < /dev/tty
+
+        case $qopt in
+        1)
+            sudo pacman -Rns quickshell-git --noconfirm 2>/dev/null || true
+            read -p "AUR helper (yay/paru): " helper < /dev/tty
+            $helper -S quickshell || fail "Erro quickshell"
+            ;;
+        2)
+            sudo pacman -Rns quickshell --noconfirm 2>/dev/null || true
+            read -p "AUR helper (yay/paru): " helper < /dev/tty
+            $helper -S quickshell-git || fail "Erro quickshell-git"
+            ;;
+        *)
+            fail "Opção inválida"
+            ;;
+        esac
+    else
+        ok "Mantendo Quickshell atual"
+    fi
+
 else
-fail "Instale manualmente"
-fi
+    if ask "Instalar Quickshell?"; then
+        read -p "Versão (1=stable / 2=git): " qopt < /dev/tty
+        read -p "AUR helper (yay/paru): " helper < /dev/tty
+
+        case $qopt in
+        1) $helper -S quickshell || fail "Erro quickshell" ;;
+        2) $helper -S quickshell-git || fail "Erro quickshell-git" ;;
+        *) fail "Inválido" ;;
+        esac
+    fi
 fi
 
 command -v qs >/dev/null || fail "Quickshell não encontrado"
