@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd "$(dirname "$0")"
+
 source ./lib/ui.sh
 source ./lib/detect.sh
 source ./lib/install.sh
