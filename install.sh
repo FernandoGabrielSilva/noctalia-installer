@@ -10,14 +10,7 @@ echo ""
 read -p "Deseja instalar o Noctalia? (y/n): " confirm
 [ "$confirm" != "y" ] && exit 0
 
-TMP_SCRIPT="/tmp/noctalia-god.sh"
+echo "Baixando e executando instalador..."
 
-echo "Baixando instalador completo..."
-
-curl -fsSL https://raw.githubusercontent.com/FernandoGabrielSilva/noctalia-installer/main/noctalia-god.sh -o $TMP_SCRIPT
-
-chmod +x $TMP_SCRIPT
-
-echo "Iniciando instalação..."
-
-bash $TMP_SCRIPT
+# Executa diretamente sem salvar em arquivo
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/FernandoGabrielSilva/noctalia-installer/main/noctalia-god.sh)"
