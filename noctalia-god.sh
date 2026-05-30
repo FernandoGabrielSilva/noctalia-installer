@@ -3,12 +3,12 @@
 # ===== UI =====
 clear
 echo -e "${C}"
-echo "███╗   ██╗ ██████╗  ██████╗████████╗ █████╗ ██╗      ██╗ █████╗ "
+echo "███╗   ██╗ ██████╗  ██████╗████████╗ █████╗ ██╗     ██╗ █████╗ "
 echo "████╗  ██║██╔═══██╗██╔════╝╚══██╔══╝██╔══██╗██║     ██║██╔══██╗"
 echo "██╔██╗ ██║██║   ██║██║        ██║   ███████║██║     ██║███████║"
 echo "██║╚██╗██║██║   ██║██║        ██║   ██╔══██║██║     ██║██╔══██║"
-echo "██║ ╚████║╚██████╔╝╚██████╗    ██║   ██║  ██║███████╗██║██║  ██║"
-echo "╚═╝ ╚═══╝ ╚═════╝ ╚═════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝╚═╝  ╚═╝"
+echo "██║ ╚████║╚██████╔╝╚██████╗   ██║   ██║  ██║███████╗██║██║  ██║"
+echo "╚═╝  ╚═══╝ ╚═════╝  ╚═════╝   ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝╚═╝  ╚═╝"
 echo -e "${N}"
 echo -e "${G}Noctalia Installer GOD ULTRA${N}"
 echo ""
@@ -24,7 +24,13 @@ sudo pacman -S --needed \
   noctalia-qs brightnessctl imagemagick python git \
   ddcutil power-profiles-daemon upower bluez \
   cliphist wlsunset xdg-desktop-portal python3 evolution-data-server
-  
+
+# Instala o qs se não estiver instalado
+if ! command -v qs &> /dev/null; then
+    echo "Instalando qs do AUR..."
+    paru -S qs
+fi
+
 echo "Baixando o Noctalia Shell"
 
 # ===============================
