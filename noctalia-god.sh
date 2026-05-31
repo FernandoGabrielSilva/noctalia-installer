@@ -216,7 +216,7 @@ echo "Criando arquivo de Window Rules no Hiprlands"
 # ===============================
 # Criando arquivo de Window Rules no Hiprlands
 # ===============================
-cat > ~/.config/hypr/env.conf <<EOF
+cat > ~/.config/hypr/noctalia/windowrules.conf <<EOF
 # ==================
 # WINDOW RULES
 # ==================
@@ -249,6 +249,9 @@ echo "Adicionando os Sources no final do arquivo"
 # Adicionando os Sources no final do arquivo
 # ===============================
 cat >> ~/.config/hypr/hyprland.conf <<EOF
+# ==================
+# SOURCES
+# ==================
 source = ./noctalia/binds.conf
 source = ./noctalia/windowrules.conf
 source = ./env.conf
