@@ -31,6 +31,8 @@ if ! command -v qs &> /dev/null; then
     paru -S qs
 fi
 
+echo "Pacotes Baixados"
+
 echo "Baixando o Noctalia Shell"
 
 # ===============================
@@ -38,14 +40,22 @@ echo "Baixando o Noctalia Shell"
 # ===============================
 paru -S noctalia-shell
 
+echo "Noctalia Instalado"
+
 echo "Autostart do Noctalia Shell"
 
 # ===============================
 # Autostart no Hiprlands
 # ===============================
 cat >> ~/.config/hypr/hyprland.conf <<EOF
+# ==================
+# STARTUP APPS
+# ==================
+exec-once = dbus-update-activation-environment --systemd --all
 exec-once = qs -c noctalia-shell
 EOF
+
+echo "AutoStart Colocado"
 
 echo "Criando arquivo de Keys no Hiprlands"
 
@@ -53,6 +63,9 @@ echo "Criando arquivo de Keys no Hiprlands"
 # Criando arquivo de Keys no Hiprlands
 # ===============================
 cat > ~/.config/hypr/noctalia/binds.conf <<EOF
+# ==================
+# KEYBINDS
+# ==================
 bind = ALT, Print, exec, dms screenshot window
 bind = CTRL ALT, Delete, exec, dms ipc call processlist focusOrToggle
 bind = CTRL, Print, exec, dms screenshot full
@@ -173,9 +186,75 @@ bind = Super Alt, W, togglegroup # togglegroup
 bind = Super, E, exec, nautilus # Arquivos
 EOF
 
+echo "Binds criados"
+
+echo "Criando arquivo de env no Hiprlands"
+
+# ===============================
+# Criando arquivo de env no Hiprlands
+# ===============================
+cat > ~/.config/hypr/env.conf <<EOF
+# ==================
+# ENV
+# ==================
+env = XDG_CURRENT_DESKTOP,Hyprland
+env = XDG_SESSION_TYPE,wayland
+
+env = GTK_USE_PORTAL,1
+env = GTK_THEME,adw-gtk3-dark
+env = GTK_ICON_THEME,Papirus-Dark
+
+env = QT_QPA_PLATFORM,wayland
+env = QT_QPA_PLATFORMTHEME,qt6ct
+env = QT_STYLE_OVERRIDE,kvantum
+EOF
+
+echo "ENV criado"
+
+echo "Criando arquivo de Window Rules no Hiprlands"
+
+# ===============================
+# Criando arquivo de Window Rules no Hiprlands
+# ===============================
+cat > ~/.config/hypr/env.conf <<EOF
+# ==================
+# WINDOW RULES
+# ==================
+windowrule = tile on, match:class ^(org\.wezfurlong\.wezterm)$
+
+windowrule = rounding 12, match:class ^(org\.gnome\.)
+
+windowrule = tile on, match:class ^(gnome-control-center)$
+windowrule = tile on, match:class ^(pavucontrol)$
+windowrule = tile on, match:class ^(nm-connection-editor)$
+
+windowrule = float on, match:class ^(gnome-calculator)$
+windowrule = float on, match:class ^(galculator)$
+windowrule = float on, match:class ^(blueman-manager)$
+windowrule = float on, match:class ^(org\.gnome\.Nautilus)$
+windowrule = float on, match:class ^(xdg-desktop-portal)$
+
+windowrule = no_initial_focus on, match:class ^(steam)$, match:title ^(notificationtoasts)
+windowrule = pin on, match:class ^(steam)$, match:title ^(notificationtoasts)
+
+windowrule = float on, match:class ^(firefox)$, match:title ^(Picture-in-Picture)$
+windowrule = float on, match:class ^(zoom)$
+EOF
+
+echo "Window Rules criado"
+
+echo "Adicionando os Sources no final do arquivo"
+
+# ===============================
+# Adicionando os Sources no final do arquivo
+# ===============================
 cat >> ~/.config/hypr/hyprland.conf <<EOF
 source = ./noctalia/binds.conf
+source = ./noctalia/windowrules.conf
+source = ./env.conf
 EOF
+
+echo "Souces adicionados"
 
 # ===== FINAL =====
 echo ""
