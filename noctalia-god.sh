@@ -47,7 +47,7 @@ echo "Autostart do Noctalia Shell"
 # ===============================
 # Autostart no Hiprlands
 # ===============================
-cat >> ~/.config/hypr/hyprland.conf <<EOF
+cat > ~/.config/hypr/hyprland.conf <<EOF
 # ==================
 # STARTUP APPS
 # ==================
@@ -207,7 +207,7 @@ env = GTK_ICON_THEME,Papirus-Dark
 
 env = QT_QPA_PLATFORM,wayland
 env = QT_QPA_PLATFORMTHEME,qt6ct
-env = QT_STYLE_OVERRIDE,kvantum
+#env = QT_STYLE_OVERRIDE,kvantum
 EOF
 
 echo "ENV criado"
@@ -244,6 +244,55 @@ EOF
 
 echo "Window Rules criado"
 
+echo "Criando arquivo de Decorations no Hiprlands"
+
+# ===============================
+# Criando arquivo de Decorations no Hiprlands
+# ===============================
+cat > ~/.config/hypr/noctalia/decorations.conf <<EOF
+# ==================
+# DECORATIONS
+# ==================
+general {
+    border_size = 3
+
+    col.active_border = rgba(89b4faff) rgba(cba6f7ff) 45deg
+    col.inactive_border = rgba(595959aa)
+}
+
+decoration {
+    rounding = 12
+
+    active_opacity = 1.0
+    inactive_opacity = 0.95
+
+    shadow {
+        enabled = true
+        range = 12
+        render_power = 3
+    }
+}
+EOF
+
+echo "Decorations criado"
+
+echo "Criando arquivo de Decorations no Hiprlands"
+
+# ===============================
+# Criando arquivo de Input no Hiprlands
+# ===============================
+cat > ~/.config/hypr/noctalia/input.conf <<EOF
+# ==================
+# INPUT
+# ==================
+input {
+    kb_layout = br
+    kb_variant = abnt2
+}
+EOF
+
+echo "Input criado"
+
 echo "Adicionando os Sources no final do arquivo"
 
 # ===============================
@@ -255,6 +304,8 @@ cat >> ~/.config/hypr/hyprland.conf <<EOF
 # ==================
 source = ./noctalia/binds.conf
 source = ./noctalia/windowrules.conf
+source = ./noctalia/decorations.conf
+source = ./noctalia/input.conf
 source = ./env.conf
 EOF
 
