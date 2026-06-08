@@ -62,7 +62,7 @@ echo "Criando arquivo de Keys no Hiprlands"
 # ===============================
 # Criando arquivo de Keys no Hiprlands
 # ===============================
-mkdir ~/.config/hypr/noctalia/binds.conf
+touch ~/.config/hypr/noctalia/binds.conf
 cat > ~/.config/hypr/noctalia/binds.conf <<EOF
 # ==================
 # KEYBINDS
