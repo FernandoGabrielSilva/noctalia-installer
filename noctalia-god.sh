@@ -23,7 +23,8 @@ echo "Baixando dependencias para o Noctalia Shell"
 sudo pacman -S --needed \
   noctalia-qs brightnessctl imagemagick python git \
   ddcutil power-profiles-daemon upower bluez \
-  cliphist wlsunset xdg-desktop-portal python3 evolution-data-server
+  cliphist wlsunset xdg-desktop-portal python3 evolution-data-server \
+  hyprshot
 
 # Instala o qs se não estiver instalado
 if ! command -v qs &> /dev/null; then
@@ -68,13 +69,13 @@ cat > ~/.config/hypr/noctalia/binds.conf <<EOF
 # ==================
 # KEYBINDS
 # ==================
-bind = ALT, Print, exec, dms screenshot window
 bind = CTRL ALT, Delete, exec, dms ipc call processlist focusOrToggle
-bind = CTRL, Print, exec, dms screenshot full
 bind = CTRL SHIFT, R, exec, dms ipc call workspace-rename open
 bindel = CTRL, XF86AudioLowerVolume, exec, dms ipc call mpris decrement 3
 bindel = CTRL, XF86AudioRaiseVolume, exec, dms ipc call mpris increment 3
-bind = , Print, exec, dms screenshot
+bind = , Print, exec, hyprshot -m region
+bind = CTRL, Print, exec, hyprshot -m output
+bind = ALT, Print, exec, hyprshot -m window
 bind = SUPER ALT, L, exec, dms ipc call lock lock
 bind = SUPER, M, exec, dms ipc call processlist focusOrToggle
 bind = SUPER, N, exec, dms ipc call notifications toggle
